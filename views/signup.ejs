@@ -1,0 +1,59 @@
+<%- include("partials/header1"); -%>
+  <script>
+    function validateform(){  
+    var name=document.signup.name.value;  
+    var password=document.signup.pwd.value;
+    var password2=document.signup.pwd2.value;
+    var email=document.signup.email.value;  
+  
+    if (name==null || name==""){  
+  alert("Name can't be blank");  
+  return false;  
+}
+if (email==null || email==""){  
+  alert("Email can't be blank");  
+  return false;  }
+  else if(password.length<6){  
+  alert("Password must be at least 6 characters long.");  
+  return false;  
+  }
+  else if(password!==password2){
+    alert("The passwords dont match. Please try again")
+    return false;
+  }  
+}  
+  </script>
+  <body>
+    <div class="container">
+      <form name="signup" action="#" method="POST" onsubmit="return validateform()">
+        <div class="title">Sign Up</div>
+        <div class="input-box underline">
+            <input type="text" name="name" placeholder="Enter Your Name" >
+            <div class="underline"></div>
+        </div>
+        <div class="input-box underline">
+            <input type="text" name="email" placeholder="Enter Your Email" >
+            <div class="underline"></div>
+        </div>
+        <div class="input-box">
+          <input type="password" name="pwd" placeholder="Create Your Password" >
+          <div class="underline"></div>
+        </div>
+        <div class="input-box">
+            <input type="password" name="pwd2" placeholder="Re-Type Your Password" >
+            <div class="underline"></div>
+          </div>
+        <div class="input-box button">
+          <input type="submit" name="" value="Continue">
+        </div>
+        <label>
+          <a class="ref2login" href="/index">Log in </a>
+          <a class="back2main" href="/">Home</a>
+          
+        </label>
+        <br>
+      </form>
+        
+    </div>
+  </body>
+</html>
