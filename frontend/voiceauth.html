@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2FA</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- <script src="https://requirejs.org/docs/release/2.3.5/minified/require.js"></script>
+    
+    <script src="/voiceauth.js"></script> -->
+    <script src="https://unpkg.com/meyda/dist/web/meyda.min.js"></script>
+
+
+    <!-- <script defer>
+      let audioIN = { audio: true };
+      navigator.mediaDevices.getUserMedia(audioIN).then(function (mediaStreamObj) {
+          let audio = document.querySelector('audio');
+          if ("srcObject" in audio) {
+            audio.srcObject = mediaStreamObj;
+          }
+          else {  
+            audio.src = window.URL.createObjectURL(mediaStreamObj);
+          }
+          audio.onloadedmetadata = function (ev) {
+            audio.play();
+          };
+          let start = document.getElementById('btnStart');
+          let stop = document.getElementById('btnStop');  
+          let playAudio = document.getElementById('adioPlay');
+          let mediaRecorder = new MediaRecorder(mediaStreamObj);
+          start.addEventListener('click', function (ev) {
+            mediaRecorder.start();
+          });
+            stop.addEventListener('click', function (ev) {
+            mediaRecorder.stop();
+          });
+          let dataArray = [];
+          mediaRecorder.ondataavailable = function (ev) {
+            dataArray.push(ev.data);
+          }
+          
+          mediaRecorder.onstop = function (ev) {
+    
+            let audioData = new Blob(dataArray, 
+                      { 'type': 'audio/mp3;' });
+              
+            dataArray = [];
+            let audioSrc = window.URL.createObjectURL(audioData);
+            playAudio.src = audioSrc;
+              //alert(audioSrc);
+              
+              var myReader = new FileReader();
+              myReader.addEventListener("loadend", function(e){
+              //console.log(e.srcElement.result); //prints the weird string 
+  });
+             //alert(URL.createObjectURL(audioData));
+              console.log( myReader.readAsText(audioData))
+  
+              //Meyda.extract(["rms","zcr"], signal)
+              const audioCtx = new AudioContext();
+              //const source = audioCtx.createMediaElementSource(playAudio);
+              //const processor = audioCtx.createScriptProcessor(512, 1, 1);
+              //source.connect(audioCtx.destination);
+              
+            //alert(Meyda.extract("rms", source));
+            const analyzer = Meyda.createMeydaAnalyzer({
+            //audioContext: audioContext,
+            source: playAudio.src,
+            bufferSize: 512,
+            featureExtractors: ["rms"],
+            callback: (features) => {
+              console.log(features);
+            },
+          });
+          }
+        })
+          .catch(function (err) {
+          console.log(err.name, err.message);
+        });
+      
+  
+  </script> -->
+  
+    
+<script >
+class FeatureExtractor {
+constructor(onComplete) {
+  this.bufferSize = 512;
+  this.onReady = onComplete;
+}
+
+start( options = { audio: true, video: false }){
+
+  let op = options
+  //
+  this.context = new AudioContext();
+  //
+  navigator.getUserMedia = navigator.webkitGetUserMedia ||
+    navigator.getUserMedia ||
+    navigator.mediaDevices.getUserMedia;
+  //
+  const errorCb = err =>{
+    console.error("error", err)
+    if (this.context.state === "suspended") {
+      const resume = () => {
+        this.context.resume();
+        setTimeout(() =>{
+          if (this.context.state === "running") {
+            document.body.removeEventListener("touchend", resume, false)
+          }
+        }, 0);
+      };
+      document.body.addEventListener("touchend", resume, false)
+    }
+  }
+  //
+  const successCallback = stream => {
+
+    window.persistAudioStream = stream;
+
+    this.streamSettings = stream.getAudioTracks()[0].getSettings()
+    
+    console.log(this.streamSettings)
+    
+    this.source = this.context.createMediaStreamSource(stream)
+    //
+    this.meyda = Meyda.createMeydaAnalyzer({
+      audioContext: this.context,
+      source: this.source,
+      sampleRate: this.streamSettings.sampleRate || 44100,
+      // Buffer Size tells Meyda how often to check the audio feature, and is
+      // measured in Audio Samples. Usually there are 44100 Audio Samples in 1
+      // second, which means in this case Meyda will calculate the level about 43
+      // (44100/1024) times per second.
+      bufferSize: this.bufferSize,
+      windowingFunction: "blackman"
+    });
+    this.meyda.start()
+    !!this.onReady && this.onReady( this )
+  }
+  //
+  try {
+    navigator
+      .mediaDevices
+      .getUserMedia(options)
+      .then(successCallback)
+      .catch(err =>{
+        navigator.getUserMedia( { audio: true },
+          successCallback,
+          errorCb
+        );
+      })
+  } catch (e){
+    errorCb(e)
+  }
+}
+
+features(features = [
+  "amplitudeSpectrum",
+  "spectralCentroid",
+  "spectralRolloff",
+  "perceptualSharpness",
+  "loudness",
+  "rms",
+  "chroma",
+  "mfcc",
+]){
+  this.context.resume();
+  return this.meyda.get(features)
+}
+
+signal(){
+  return this.meyda._m.signal;
+}
+
+onReady( fn ){
+  cb( this )
+}
+}
+</script>
+</head>
+
+<style>
+    .btnStart{
+        background: linear-gradient(to right, #99004d 0%, #ff0080 100%);
+  font-size: 17px;
+  color: #fff;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 10px 24px;
+}
+.btnStop{
+        background: linear-gradient(to right, #99004d 0%, #ff0080 100%);
+  font-size: 17px;
+  color: #fff;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 10px 24px;
+}
+</style>
+
+
+<body>
+    <div class="container">
+        <form name="voiceauth" action="#">
+            <div class="title">Voice Authentication</div>
+            <div class="">Say "Banana is a berry"</div> 
+            <button class="btnStart" id="btnStart" onclick="playIt()">START</button>
+            <button class="btnStop" id="btnStop">STOP</button>
+            <audio id="something" controls></audio>
+  <audio id="adioPlay" controls></audio> 
+        </form>
+    </div>
+  <script>
+    function playIt(){
+      let obj = new FeatureExtractor();
+      obj.start();
+      // console.log(obj.features());
+      // console.log(obj.signal());
+    }
+  </script>
+</body>
+</html>

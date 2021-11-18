@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"/>
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  </head>
+  <script>
+    function validateform(){  
+    var name=document.login.name.value;  
+    var password=document.login.pwd.value;  
+  
+if (name==null || name==""){  
+  alert("Email can't be blank");  
+  return false;  
+}else if(password.length<6){  
+  alert("Password must be at least 6 characters long.");  
+  return false;  
+  }  
+}  
+  </script>
+  <body>
+    <div class="container">
+      <form name="login" action="/addname" method="POST" onsubmit="return validateform()">
+        <div class="title">Login</div>
+        <div class="input-box underline">
+          <input type="text" name="name" placeholder="Enter Your Email" >
+          <div class="underline"></div>
+        </div>
+        <div class="input-box">
+          <input type="password" name="pwd" placeholder="Enter Your Password" >
+          <div class="underline"></div>
+        </div>
+        <br><br>
+        <div id="controls">
+          <button class="adminbutton" id="recordButton">Record</button>
+          <button  class="adminbutton" id="pauseButton" disabled>Pause</button>
+          <button class="adminbutton" id="stopButton" disabled>Stop</button>
+         </div>
+         <div id="formats">Format: start recording to see sample rate</div>
+         <p><strong>Recordings:</strong></p>
+         <ol id="recordingsList"></ol>
+         <script src="https://cdn.rawgit.com/mattdiamond/Recorderjs/08e7abd9/dist/recorder.js"></script>
+         <script src="app2.js"></script>
+        <br><br>
+        <input type="text" id ="finalvalue"name="finalvalue" placeholder="Enter the key">
+
+        <div class="input-box button">
+          <input type="submit" name="" value="Continue">
+        </div>
+        <label>
+          <a class="ref2signup" href="/signup.html">Sign up Here</a>
+          <a class="back2mains" href="/index.html">Home</a>
+
+        </label>
+        <br>
+      </form>
+        
+    </div>
+  </body>
+</html>
