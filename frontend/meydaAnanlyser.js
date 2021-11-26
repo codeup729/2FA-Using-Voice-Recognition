@@ -1,11 +1,3 @@
-const fs = require('fs')
+const meyda=require("meyda");
 
-let value=fs.readFile('/Users/ritwikgoel/Downloads/output.txt', 'utf8' , (err, data) => {
-  if (err) {
-    console.error(err)
-    return
-  }
-  console.log(data)
-})
-
-
+console.log(meyda.extract('zcr',"A.wav"));
